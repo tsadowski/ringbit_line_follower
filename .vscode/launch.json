@@ -1,0 +1,49 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "probe-rs v1",
+            "cwd": "${workspaceFolder}",
+            "connectUnderReset": false,
+            "runtimeExecutable": "/home/totty/.cargo/bin/probe-rs",
+            "runtimeArgs": ["dap-server"],
+            "chip": "nRF51822_xxAA",
+            "probe": "0d28:0204:9901000059354e450070800a0000004a0000000097969901", //!MODIFY (or remove)
+            "flashingConfig": {
+                "flashingEnabled": true,
+                "haltAfterReset": true
+            },
+            "coreConfigs": [
+                {
+                    "coreIndex": 0,
+                    "programBinary": "target/thumbv6m-none-eabi/debug/${workspaceFolderBasename}"
+                }
+            ],
+            "consoleLogLevel": "Debug" //Info, Debug
+        },
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "probe-rs v2",
+            "cwd": "${workspaceFolder}",
+            "connectUnderReset": false,
+            "runtimeExecutable": "/home/totty/.cargo/bin/probe-rs",
+            "runtimeArgs": ["dap-server"],
+            "chip": "nRF52833_xxAA",
+            "probe": "0d28:0204:9904360258994e450016901800000025000000009796990b", //!MODIFY (or remove)
+            "flashingConfig": {
+                "flashingEnabled": true,
+                "haltAfterReset": true
+            },
+            "coreConfigs": [
+                {
+                    "coreIndex": 0,
+                    "programBinary": "target/thumbv7em-none-eabihf/debug/${workspaceFolderBasename}"
+                }
+            ],
+            "consoleLogLevel": "Debug" //Info, Debug
+        },
+    ]
+}

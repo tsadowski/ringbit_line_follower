@@ -5,8 +5,11 @@ use defmt_rtt as _;
 use panic_halt as _;
 
 use core::cell::RefCell;
-use cortex_m::{interrupt::Mutex, prelude::_embedded_hal_adc_OneShot};
+use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
+
+use embedded_hal::digital::InputPin;
+
 
 use microbit::{
     adc::{Adc, AdcConfig, Default},
@@ -18,7 +21,6 @@ use microbit::{
         gpiote::*,
         pac::{self, interrupt, TIMER0, TIMER1},
         ppi::{self, ConfigurablePpi, Ppi},
-        prelude::*,
     },
 };
 struct Analog {
@@ -127,7 +129,7 @@ fn display(cstate: &CarState) {
 
 #[entry]
 fn main() -> ! {
-    if let Some(board) = Board::take() {
+    if let Some(mut board) = Board::take() {
         let display = Display::new(board.TIMER1, board.display_pins);
         let adc: Adc = Adc::new(board.ADC, AdcConfig::default_10bit());
         let anapin = board.edge.e00.into_floating_input(); // PAD0
@@ -230,8 +232,13 @@ fn TIMER0() {
             timer.cc[2].write(|w| unsafe { w.bits(STATE.rspeed) });
             timer.events_compare[0].write(|w| unsafe { w.bits(0) });
         }
+        #[cfg(feature = "v1")]
         if let Some(analog) = ANALOG.borrow(cs).borrow_mut().as_mut() {
-            match analog.converter.read(&mut analog.pin) {
+            *PHOTO_CELL = analog.converter.read_channel(&mut analog.pin);
+        }
+        #[cfg(feature = "v2")]
+        if let Some(analog) = ANALOG.borrow(cs).borrow_mut().as_mut() {
+            match analog.converter.read_channel(&mut analog.pin) {
                 Ok(v) => *PHOTO_CELL = v,
                 Err(_e) => *PHOTO_CELL = 0,
             };
